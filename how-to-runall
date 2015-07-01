@@ -1,0 +1,27 @@
+runall.sh can be used to verify the program is creating the correct triangle list.
+
+to use:
+1) download the solution files provided by prof:
+https://ece.uwaterloo.ca/~wgolab/graph1K_B.sort
+https://ece.uwaterloo.ca/~wgolab/graph1K_C.sort
+https://ece.uwaterloo.ca/~wgolab/graph10K_B.sort
+https://ece.uwaterloo.ca/~wgolab/graph10K_C.sort
+https://ece.uwaterloo.ca/~wgolab/graph100K_A.sort
+https://ece.uwaterloo.ca/~wgolab/graph100K_B.sort
+https://ece.uwaterloo.ca/~wgolab/graph100K_C.sort
+https://ece.uwaterloo.ca/~wgolab/graph1M_B.sort
+
+2) sort the files with the perl program sort.pl
+ > perl sorted/sort.pl graph1K_B.sort > graph1K_B
+etc.
+
+3) save the resulting sorted files in sorted/ directory
+
+4) download the sample inputs and save in inputs/ directory
+
+5) from the directory you run the java program, run the script
+ > ./runall.sh
+
+
+
+
