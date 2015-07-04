@@ -11,6 +11,7 @@ package ece454750s15a2;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,7 +37,7 @@ public class TriangleCountImpl {
     public List<Triangle> enumerateTriangles() throws IOException {
 	    // this code is single-threaded and ignores numCores
     	
-    	ArrayList<Triangle> ret = new ArrayList<Triangle>();
+    	List<Triangle> ret = Collections.synchronizedList(new ArrayList<Triangle>());
     	
         if(numCores < 2) {
         	long startTime = System.currentTimeMillis();
@@ -53,12 +54,12 @@ public class TriangleCountImpl {
 	            	Object[] vertex1Array = adjacencyList.get(i).toArray();
 	            	for(int j=0; j < vertex1Array.length; j++) {
 	        		
-	            		int vertex2 = (int)vertex1Array[j];
+	            		int vertex2 = (Integer)vertex1Array[j];
 	            		if(adjacencyList.get(vertex2).size() > 1){
 	            			if (vertex1 < vertex2) {
 	        			
 	            				for(int count=j+1; count<vertex1Array.length; count++) {        			
-	            					int vertex3 = (int)vertex1Array[count];
+	            					int vertex3 = (Integer)vertex1Array[count];
 	            					if(vertex1 < vertex3){
 	            						if( adjacencyList.get(vertex2).contains(vertex3) ) {
 	            							if( vertex2 < vertex3 ) {
@@ -82,7 +83,7 @@ public class TriangleCountImpl {
     		// parallelized version
     		ExecutorService pool = Executors.newFixedThreadPool(numCores);
             long startTime = System.currentTimeMillis();
-            ArrayList<Set<Integer>> adjacencyList = getParallelAdjacencyList(input);
+            ConcurrentHashMap<Integer,HashSet<Integer>> adjacencyList = getParallelAdjacencyList(input);
             long endTime = System.currentTimeMillis();
             long diffTime = endTime - startTime;
     	    System.out.println("Lists obtained in " + diffTime);
@@ -92,10 +93,10 @@ public class TriangleCountImpl {
             for (int i=0; i < adjacencyList.size()-1; i++) {
             	class eachVertex implements Runnable {
             		int i;
-            		ArrayList<Triangle> ret;
-            		ArrayList<Set<Integer>> adjacencyList;
+            		List<Triangle> ret;
+            		ConcurrentHashMap<Integer,HashSet<Integer>> adjacencyList;
 
-            		public eachVertex(int i, ArrayList<Triangle> ret, ArrayList<Set<Integer>> adjacencyList) {
+            		public eachVertex(int i, List<Triangle> ret, ConcurrentHashMap<Integer,HashSet<Integer>> adjacencyList) {
             			this.i = i;
             			this.ret = ret;
             			this.adjacencyList = adjacencyList;
@@ -106,12 +107,12 @@ public class TriangleCountImpl {
 	    				if(adjacencyList.get(vertex1).size() > 1){
 	    					Object[] vertex1Array = adjacencyList.get(i).toArray();
 	    	            	for(int j=0; j < vertex1Array.length; j++) {
-	    	            		int vertex2 = (int)vertex1Array[j];
+	    	            		int vertex2 = (Integer)vertex1Array[j];
 	    	            		if(adjacencyList.get(vertex2).size() > 1){
 	    	            			if (vertex1 < vertex2) {
 	    	        			
 	    	            				for(int count=j+1; count<vertex1Array.length; count++) {        			
-	    	            					int vertex3 = (int)vertex1Array[count];
+	    	            					int vertex3 = (Integer)vertex1Array[count];
 	    	            					if(vertex1 < vertex3){
 	    	            						if( adjacencyList.get(vertex2).contains(vertex3) ) {
 	    	            							if( vertex2 < vertex3 ) {
@@ -157,7 +158,7 @@ public class TriangleCountImpl {
 	    System.out.println("Found graph with " + numVertices + " vertices and " + numEdges + " edges");
  
 	    ArrayList<HashSet<Integer>> adjacencyList = new ArrayList<HashSet<Integer>>(numVertices);
-	
+		
         while ((strLine = br.readLine()) != null && !strLine.equals(""))   {
         	adjacencyList.add(new HashSet<Integer>());
 	        parts = strLine.split(": ");
@@ -175,7 +176,7 @@ public class TriangleCountImpl {
 	    return adjacencyList;
     }
     
-    public ArrayList<Set<Integer>> getParallelAdjacencyList(byte[] data) throws IOException {
+    public ConcurrentHashMap<Integer,HashSet<Integer>> getParallelAdjacencyList(byte[] data) throws IOException {
     	ExecutorService pool = Executors.newFixedThreadPool(numCores);
     	
     	InputStream istream = new ByteArrayInputStream(input);
@@ -190,20 +191,21 @@ public class TriangleCountImpl {
     	int numEdges = Integer.parseInt(parts[1].split(" ")[0]);
     	System.out.println("Found graph with " + numVertices + " vertices and " + numEdges + " edges");
      
-    	ArrayList<Set<Integer>> adjacencyList = new ArrayList<Set<Integer>>(numVertices);
+    	ConcurrentHashMap<Integer,HashSet<Integer>> adjacencyList = new ConcurrentHashMap<Integer,HashSet<Integer>>(numVertices);
+		
     	for (int i = 0; i < numVertices; i++) {
-    		Set<Integer> mySet = Collections.newSetFromMap(new ConcurrentHashMap<Integer, Boolean>());
-    	    adjacencyList.add(mySet);
+    	    adjacencyList.put(i, new HashSet<Integer>());
     	}
+		
     	while ((strLine = br.readLine()) != null && !strLine.equals(""))   {
     	//----------------------------------------------------------------------------------------------------------
     		class eachLine implements Runnable {
     			String parts[];
     			String strLine;
     			
-    			ArrayList<Set<Integer>> adjacencyList;
+    			ConcurrentHashMap<Integer,HashSet<Integer>> adjacencyList;
 
-    			public eachLine(String parts[], String strLine, ArrayList<Set<Integer>> adjacencyList) {
+    			public eachLine(String parts[], String strLine, ConcurrentHashMap<Integer,HashSet<Integer>> adjacencyList) {
     				this.parts = parts;
     				this.strLine = strLine;
     				this.adjacencyList = adjacencyList;
