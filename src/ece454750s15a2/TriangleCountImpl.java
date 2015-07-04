@@ -100,56 +100,35 @@ public class TriangleCountImpl {
             			this.ret = ret;
             			this.adjacencyList = adjacencyList;
             		}
-    			public void run() {
-    				int vertex1 = i;
-    				
-    				if(adjacencyList.get(vertex1).size() > 1){
-    					Object[] vertex1Array = adjacencyList.get(i).toArray();
-    	            	for(int j=0; j < vertex1Array.length; j++) {
-    	            		int vertex2 = (int)vertex1Array[j];
-    	            		if(adjacencyList.get(vertex2).size() > 1){
-    	            			if (vertex1 < vertex2) {
-    	        			
-    	            				for(int count=j+1; count<vertex1Array.length; count++) {        			
-    	            					int vertex3 = (int)vertex1Array[count];
-    	            					if(vertex1 < vertex3){
-    	            						if( adjacencyList.get(vertex2).contains(vertex3) ) {
-    	            							if( vertex2 < vertex3 ) {
-    	            								ret.add( new Triangle(vertex1, vertex2, vertex3) );
-    	            							}else{
-    	            								ret.add( new Triangle(vertex1, vertex3, vertex2) );
-    	            							}
-    	            						}
-    	            					}        			
-    	            				}
-    	            			}
-    	            		}
-    	            	
-	            	/*for(int j=0; j < adjacencyList.get(i).size()-1; j++) {
-	            		int vertex2 = adjacencyList.get(i).get(j);
-	            		if (vertex1 < vertex2) {
-	            			int count = j+1;
-	            		
-	            			boolean same_vertex = true;
-	            			while(same_vertex) {
-	    	        			int vertex3 = adjacencyList.get(i).get(count);
-	    	        			if( adjacencyList.get(vertex2).contains(vertex3) ) {
-	    	        				ret.add( new Triangle(vertex1, vertex2, vertex3) );
-	    	        			}
-	    	
-	    	        			count++;
-	    	        			if(count >= adjacencyList.get(i).size() ){
-	    	        				same_vertex = false;
-	    	        			}
-	    	        		}
-	            		}
-	            	}*/
-    				}
-    				}
-    			}
-    		}
-    		pool.submit(new eachVertex(i, ret, adjacencyList));
-            	
+	    			public void run() {
+	    				int vertex1 = i;
+	    				
+	    				if(adjacencyList.get(vertex1).size() > 1){
+	    					Object[] vertex1Array = adjacencyList.get(i).toArray();
+	    	            	for(int j=0; j < vertex1Array.length; j++) {
+	    	            		int vertex2 = (int)vertex1Array[j];
+	    	            		if(adjacencyList.get(vertex2).size() > 1){
+	    	            			if (vertex1 < vertex2) {
+	    	        			
+	    	            				for(int count=j+1; count<vertex1Array.length; count++) {        			
+	    	            					int vertex3 = (int)vertex1Array[count];
+	    	            					if(vertex1 < vertex3){
+	    	            						if( adjacencyList.get(vertex2).contains(vertex3) ) {
+	    	            							if( vertex2 < vertex3 ) {
+	    	            								ret.add( new Triangle(vertex1, vertex2, vertex3) );
+	    	            							}else{
+	    	            								ret.add( new Triangle(vertex1, vertex3, vertex2) );
+	    	            							}
+	    	            						}
+	    	            					}        			
+	    	            				}
+	    	            			}
+	    	            		}   	         
+	    	            	}
+	    				}
+	    			}
+	    		}
+	    		pool.submit(new eachVertex(i, ret, adjacencyList));	
             }
     		pool.shutdown();
     		try {
