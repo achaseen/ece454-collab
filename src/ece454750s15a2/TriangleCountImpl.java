@@ -35,18 +35,12 @@ public class TriangleCountImpl {
 	    return ret;
     }
     public List<Triangle> enumerateTriangles() throws IOException {
-	    // this code is single-threaded and ignores numCores
     	
     	List<Triangle> ret = Collections.synchronizedList(new ArrayList<Triangle>());
     	
         if(numCores < 2) {
-        	long startTime = System.currentTimeMillis();
             ArrayList<HashSet<Integer>> adjacencyList = getSingleAdjacencyList(input);
-            long endTime = System.currentTimeMillis();
-            long diffTime = endTime - startTime;
-    	    System.out.println("Lists obtained in " + diffTime);    	    
 
-            startTime = System.currentTimeMillis();
 	        for (int i=0; i < adjacencyList.size()-1; i++) {
 	        	       	
 	            int vertex1 = i;
@@ -75,20 +69,10 @@ public class TriangleCountImpl {
 	            	}
 	            }
 	        }
-	        endTime = System.currentTimeMillis();
-	        diffTime = endTime - startTime;
-		    System.out.println("Count obtained in " + diffTime);
-	    
     	}else{
     		// parallelized version
     		ExecutorService pool = Executors.newFixedThreadPool(numCores);
-            long startTime = System.currentTimeMillis();
             ConcurrentHashMap<Integer,HashSet<Integer>> adjacencyList = getParallelAdjacencyList(input);
-            long endTime = System.currentTimeMillis();
-            long diffTime = endTime - startTime;
-    	    System.out.println("Lists obtained in " + diffTime);
-
-            startTime = System.currentTimeMillis();
             
             for (int i=0; i < adjacencyList.size()-1; i++) {
             	class eachVertex implements Runnable {
